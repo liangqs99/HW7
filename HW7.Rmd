@@ -1,0 +1,298 @@
+---
+title: "HW7"
+author: "Interactive Geospatial Visualization Using Maps"
+date: "Q Liang"
+output:
+  html_document:
+    code_folding: hide
+    code_download: yes
+    smooth_scroll: yes
+    theme: lumen
+  pdf_document: 
+    highlight: tango
+editor_options:
+  
+  chunk_output_type: inline
+---
+
+
+
+<style type="text/css">
+
+div#TOC li {
+    list-style:none;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+h1.title {
+  font-size: 24px;
+  color: DarkRed;
+  text-align: center;
+}
+h4.author { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkRed;
+  text-align: center;
+}
+h4.date { /* Header 4 - and the author and data headers use this too  */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+  text-align: center;
+}
+h1 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 22px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: center;
+}
+h2 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: navy;
+    text-align: left;
+}
+
+h3 { /* Header 3 - and the author and data headers use this too  */
+    font-size: 15px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    font-face: bold;
+    text-align: left;
+}
+
+h4 { /* Header 4 - and the author and data headers use this too  */
+    font-size: 18px;
+    font-family: "Times New Roman", Times, serif;
+    color: darkred;
+    text-align: left;
+}
+/* Tab features */
+.nav>li>a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+    color: #990000;
+}
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+    color: #ffffff;
+    background-color: #990000;
+}
+/* center maps using chunk option: fig.align='center' */
+.html-widget {
+    margin: auto;
+}
+</style>
+
+```{r setup, include=FALSE}
+# code chunk specifies whether the R code, warnings, and output 
+# will be included in the output files.
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+if (!require("knitr")) {
+   install.packages("knitr")
+   library(knitr)
+}
+if (!require("plotly")) {
+   install.packages("plotly")
+   library(plotly)
+}
+if (!require("gapminder")) {
+   install.packages("gapminder")
+   library(gapminder)
+}
+#if (!require("RCurl")) {
+#    install.packages("RCurl")             # Install RCurl package
+#    library("RCurl")
+#}
+if (!require("colourpicker")) {
+    install.packages("colourpicker")              
+    library("colourpicker")
+}
+if (!require("gganimate")) {
+    install.packages("gganimate")              
+    library("gganimate")
+}
+if (!require("gifski")) {
+    install.packages("gifski")              
+    library("gifski")
+}
+if (!require("magick")) {
+    install.packages("magick")              
+    library("magick")
+}
+if (!require("grDevices")) {
+    install.packages("grDevices")              
+    library("grDevices")
+}
+if (!require("leaflet")) {
+    install.packages("leaflet")              
+    library("leaflet")
+}
+if (!require("maps")) {
+    install.packages("maps")              
+    library("maps")
+}
+if (!require("htmltools")) {
+    install.packages("htmltools")              
+    library("htmltools")
+}
+if (!require("htmlwidgets")) {
+    install.packages("htmlwidgets")              
+    library("htmlwidgets")
+}
+if (!require("leaflegend")) {
+    install.packages("leaflegend")              
+    library("leaflegend")
+}
+if (!require("geojsonio")) {
+    install.packages("geojsonio")              
+    library("geojsonio")
+}
+if (!require("stringi")) {
+    install.packages("stringi")              
+    library("stringi")
+}
+if (!require("RColorBrewer")) {
+    install.packages("RColorBrewer")              
+    library("RColorBrewer")
+}
+if (!require("tigris")) {
+    install.packages("tigris")              
+    library("tigris")
+}
+if (!require("leafpop")) {
+    install.packages("leafpop")              
+    library("leafpop")
+}
+#if (!require("leafem")) {
+#    install.packages("leafem")              
+#    library("leafem")
+#}
+#if (!require("tmap")) {
+#    install.packages("tmap")              
+#    library("tmap")
+#}
+#if (!require("tmaptools")) {
+#    install.packages("tmaptools")              
+#    library("tmaptools")
+#}
+if (!require("webshot2")) {
+    install.packages("webshot2")              
+    library("webshot2")
+}
+if (!require("sf")) {
+    install.packages("sf",)              
+    library("sf")
+}
+#if (!require("terra")) {
+#    install.packages("terra")              
+#   library("terra")
+#}
+if (!require("leafpop")) {
+    install.packages("leafpop")              
+    library("leafpop")
+}
+if (!require("lubridate")) {
+    install.packages("lubridate")              
+    library("lubridate")
+}
+##
+knitr::opts_chunk$set(echo = TRUE,       
+                      warning = FALSE,   
+                      result = TRUE,   
+                      message = FALSE,
+                      comment = NA)
+```
+
+
+## Gas Stations
+
+<BR>
+Choose an appropriate R map library to create an interactive map of the gas station data and show some information of each gas station on the map using hover/popups.
+<BR>
+
+```{r fig.align='center', fig.height=6, fig.width=8}
+#Read data.
+data0 <- read.csv ("https://pengdsci.github.io/datasets/POC/POC.csv",header=TRUE,sep=",")
+#head(data0)
+#table(data0$STATE) #45 states + DC
+#keep 7 variables
+#library(dplyr)
+data1 = select(data0,site_row_id,STATE,county,ADDRESS,ycoord,xcoord,ZIPnew)
+#range(data1$ycoord) #25.07781 48.98864
+#range(data1$xcoord) #-123.80830  -70.76207
+#data1
+#random slelect 500 rows
+#library(dplyr)
+data2 <- data1 %>% sample_n(500)
+#map
+#library(leaflet)
+label.msg <- paste(paste("<br>State: ",data2$STATE),
+                   paste("<br>County: ",data2$county),
+                   paste("<br>Address: ",data2$ADDRESS),
+                   paste("<br>Zip: ",data2$ZIPnew))
+leaflet(data2) %>% 
+  addTiles() %>%
+  setView(lng=-96.25, lat=39.50, zoom = 4) %>%
+  addMarkers(~xcoord, ~ycoord, label = ~label.msg)
+```
+
+<BR>
+This is a data set of US gas stations. However, it includes only 45 states and Washington, DC. The map shows 
+500 gas stations which are randomly selected from the data set. The gas stations are mainly in east.
+<BR>
+
+## Philly Crime Data (2023)
+
+<BR>
+Choose a map library to make an interactive map to plot crime locations and use different colors to label fatal and non-fatal crimes.
+<BR>
+
+```{r fig.align='center', fig.height=6, fig.width=8}
+#Read data.
+data5 <- read.csv ("https://pengdsci.github.io/STA553VIZ/w08/PhillyCrimeSince2015.csv",header=TRUE,sep=",")
+#head(data5)
+#str(data5)
+#data5$date
+#year of 2023
+#library(lubridate)
+data5$date2 <- strptime(as.character(data5$date), "%m/%d/%Y")
+#head(data5)
+data5$date3 <- year(data5$date2)
+#head(data5)
+#str(data5)
+#table(data5$date3) #n=1666
+#data6 has only 2023 
+year.id=which(data5$date3==2023)
+data6=data5[year.id,]
+#range(data6$lng) #
+#range(data6$lat) #
+#data6$lng
+#data6$lat
+#map
+label.msg2 <- paste(paste("<br>Race: ",data6$race),
+                    paste("<br>Sex: ",data6$sex),
+                    paste("<br>Fatal: ",data6$fatal),
+                    paste("<br>Neighborhood: ",data6$neighborhood))
+#fatalColor <- colorFactor(c("blue", "red"),c("Fatal","Nonfatal"))
+fatalColor <- rep("red",dim(data6)[1])
+#fatalColor[which(data6$fatal=="Fatal")] <- "red"
+fatalColor[which(data6$fatal=="Nonfatal")] <- "blue"
+leaflet(data6) %>% 
+  addTiles() %>%
+  setView(lng=-75.1, lat=40, zoom = 11) %>%
+  addCircleMarkers(lng = ~lng,
+                   lat = ~lat,
+                   label=~label.msg2,
+                   color=~fatalColor)
+```
+
+<BR>
+This map shows the crime data of Philadelphia in 2023. The total number is 1666. The map shows some details, including race, sex, fatal, and neighborhood. The crime is regional clustered.
+<BR>
